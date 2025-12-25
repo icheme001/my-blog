@@ -3,32 +3,56 @@ import cors from "cors";
 
 import authRoutes from "./routes/auth.routes.js";
 import postRoutes from "./routes/post.routes.js";
-import commentRoutes from './routes/comment.routes.js';
-import likeRoutes from './routes/like.routes.js';
-import userRoutes from './routes/user.routes.js';
+import commentRoutes from "./routes/comment.routes.js";
+import likeRoutes from "./routes/like.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import newsletterRoutes from "./routes/newsletter.routes.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
-import newsletterRoutes from './routes/newsletter.routes.js';
 
 const app = express();
 
-app.use('/uploads', express.static('uploads'));
-// Global Middlewares
-app.use(cors());
+/* ===========================
+   GLOBAL MIDDLEWARES
+=========================== */
+
+// CORS (restrict in production)
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://YOUR_FRONTEND_DOMAIN.vercel.app"
+    ],
+    credentials: true
+  })
+);
+
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
+/* ===========================
+   HEALTH CHECK
+=========================== */
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "Blog API is running 🚀"
+  });
+});
 
-app.use('/api/users', userRoutes);
-
-// API Routes
+/* ===========================
+   API ROUTES
+=========================== */
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
-app.use('/api', commentRoutes);
-app.use('/api', likeRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/newsletter", newsletterRoutes);
+app.use("/api", commentRoutes);
+app.use("/api", likeRoutes);
 
-// Error Handler
+/* ===========================
+   ERROR HANDLER (LAST)
+=========================== */
 app.use(errorMiddleware);
 
-app.use('/api/newsletter', newsletterRoutes);
-
 export default app;
-
